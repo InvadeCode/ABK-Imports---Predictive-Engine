@@ -76,7 +76,10 @@ export function Layout() {
             <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden shrink-0 hover:scale-105 transition-transform bg-[#F8F9FA] border border-slate-100 p-1">
               <img src="https://abkimports.com/wp-content/uploads/2023/04/ABK-Logo_150pix-x-150pix-01.png" alt="ABK" className="w-full h-full object-contain" />
             </div>
-            <span className="hidden md:block ml-3 font-bold tracking-tight text-[#243673]">ABK Dashboard</span>
+            <div className="hidden md:flex ml-3 flex-col justify-center">
+              <span className="font-bold tracking-tight text-[#243673] leading-tight">ABK Dashboard</span>
+              <span className="text-[10px] text-slate-400 font-medium tracking-wide mt-[2px]">Predictive Stock Forecast</span>
+            </div>
           </div>
 
           <nav className="p-3 space-y-1 mt-2">

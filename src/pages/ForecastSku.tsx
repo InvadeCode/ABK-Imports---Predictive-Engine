@@ -476,49 +476,53 @@ export function ForecastSku() {
                 {/* Visual Pipeline */}
                 <div>
                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Logistics Pipeline</h4>
-                   <div className="flex items-start justify-between relative bg-white px-6 pt-8 pb-6 rounded-xl border border-slate-100 shadow-sm">
-                        
-                        <div className="absolute top-[55px] left-16 right-16 h-1 bg-slate-100 z-0"></div>
-                        
-                        <div className="relative z-10 flex flex-col items-center gap-2 flex-1">
-                            <div className="w-12 h-12 rounded-full bg-indigo-50 border-2 border-indigo-200 flex items-center justify-center text-indigo-600 shadow-sm bg-white">
-                                <PackageOpen className="w-5 h-5" />
+                   <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                        <div className="relative flex items-center justify-between z-0">
+                            {/* The Line */}
+                            <div className="absolute top-1/2 left-[10%] right-[10%] h-1 bg-slate-100 -translate-y-1/2 z-[1]"></div>
+                            
+                            <div className="relative z-10 flex flex-col items-center gap-2 flex-1 pt-2">
+                                <div className="w-12 h-12 rounded-full bg-white border-2 border-indigo-200 flex items-center justify-center text-indigo-600 shadow-sm">
+                                    <PackageOpen className="w-5 h-5" />
+                                </div>
+                                <div className="text-center absolute top-14 mt-1 w-32">
+                                    <div className="text-xs font-bold text-slate-800">Sourcing</div>
+                                    <div className="text-[10px] text-slate-500 font-medium leading-tight">Global Suppliers</div>
+                                </div>
                             </div>
-                            <div className="text-center">
-                                <div className="text-xs font-bold text-slate-800">Sourcing</div>
-                                <div className="text-[10px] text-slate-500 font-medium">Global Suppliers</div>
-                            </div>
-                        </div>
 
-                        <div className="relative z-10 flex flex-col items-center gap-2 flex-1">
-                            <div className="w-12 h-12 rounded-full bg-slate-50 border-2 border-slate-200 flex items-center justify-center text-slate-400 shadow-sm bg-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
+                            <div className="relative z-10 flex flex-col items-center gap-2 flex-1 pt-2">
+                                <div className="w-12 h-12 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-slate-400 shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
+                                </div>
+                                <div className="text-center absolute top-14 mt-1 w-32">
+                                    <div className="text-xs font-bold text-slate-800">Customs</div>
+                                    <div className="text-[10px] text-slate-500 font-medium leading-tight">Border Clearance</div>
+                                </div>
                             </div>
-                            <div className="text-center">
-                                <div className="text-xs font-bold text-slate-800">Customs</div>
-                                <div className="text-[10px] text-slate-500 font-medium">Border Clearance</div>
-                            </div>
-                        </div>
 
-                        <div className="relative z-10 flex flex-col items-center gap-2 flex-1">
-                            <div className="w-12 h-12 rounded-full bg-slate-50 border-2 border-slate-200 flex items-center justify-center text-slate-400 shadow-sm bg-white">
-                                <Truck className="w-5 h-5" />
+                            <div className="relative z-10 flex flex-col items-center gap-2 flex-1 pt-2">
+                                <div className="w-12 h-12 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-slate-400 shadow-sm">
+                                    <Truck className="w-5 h-5" />
+                                </div>
+                                <div className="text-center absolute top-14 mt-1 w-32">
+                                    <div className="text-xs font-bold text-slate-800">Transit</div>
+                                    <div className="text-[10px] text-slate-500 font-medium leading-tight">Ocean / Air</div>
+                                </div>
                             </div>
-                            <div className="text-center">
-                                <div className="text-xs font-bold text-slate-800">Transit</div>
-                                <div className="text-[10px] text-slate-500 font-medium">Ocean / Air</div>
-                            </div>
-                        </div>
 
-                        <div className="relative z-10 flex flex-col items-center gap-2 flex-1">
-                            <div className="w-12 h-12 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center text-emerald-600 shadow-sm shadow-emerald-100 bg-white">
-                                <Target className="w-5 h-5" />
-                            </div>
-                            <div className="text-center">
-                                <div className="text-xs font-bold text-slate-800">Warehouse</div>
-                                <div className="text-[10px] text-slate-500 font-medium">Primary Hub</div>
+                            <div className="relative z-10 flex flex-col items-center gap-2 flex-1 pt-2">
+                                <div className="w-12 h-12 rounded-full bg-white border-2 border-emerald-200 flex items-center justify-center text-emerald-600 shadow-sm shadow-emerald-100">
+                                    <Target className="w-5 h-5" />
+                                </div>
+                                <div className="text-center absolute top-14 mt-1 w-32">
+                                    <div className="text-xs font-bold text-slate-800">Warehouse</div>
+                                    <div className="text-[10px] text-slate-500 font-medium leading-tight">Primary Hub</div>
+                                </div>
                             </div>
                         </div>
+                        {/* Empty spacer so the absolute text elements don't get cut off */}
+                        <div className="h-12 mt-2 w-full"></div>
                    </div>
                 </div>
 

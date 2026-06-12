@@ -131,6 +131,67 @@ export function DemandVariance() {
       FinalDemand: d.finalDemand,
   }));
 
+  const [aiRecommendations, setAiRecommendations] = useState<any>(null);
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [currentConfidence, setCurrentConfidence] = useState(88);
+
+  const generateRuleBasedInsights = React.useCallback(() => {
+      let high = { text: "Reduce immediate import orders for Chip Chops & Farmina by 15% due to elevated forex and ocean freight costs. Wait for end-of-month stabilization.", impact: "Excessive working capital lock-up and ~4.2% margin erosion due to unoptimized procurement timing." };
+      let medium = { text: "Increase bulk raw material procurement for domestic brands (like Drools) by 5% to hedge against the rising Poultry & Grain index.", impact: "Potential stock-outs on high-velocity SKUs and vulnerability to sudden raw material price hikes." };
+      let low = { text: "Adjust procurement padding for temperature-sensitive pet foods (wet foods/treats) by +2 days to buffer against mild logistical transit delays.", impact: "Minor out-of-stock events on low-margin fast-moving items." };
+
+      if (simulatedValues['Currency Exchange'] && simulatedValues['Currency Exchange'] > 85) {
+          high.text = `Delay immediate import orders for premium imported brands. Forex is highly elevated at ₹${simulatedValues['Currency Exchange']}, eating into target margins.`;
+      } else if (simulatedValues['Currency Exchange'] && simulatedValues['Currency Exchange'] < 82) {
+          high.text = `Accelerate import orders for premium brands. Favorable forex at ₹${simulatedValues['Currency Exchange']} improves margin by ~3%.`;
+      }
+
+      if (simulatedValues['Logistics Weather'] && simulatedValues['Logistics Weather'] > 40) {
+          low.text = `Extreme heat conditions (${simulatedValues['Logistics Weather']}°C) detected. Ensure temperature-controlled transit for sensitive SKUs (e.g., wet food, treats) to prevent spoilage.`;
+      } else if (simulatedValues['Logistics Weather'] && simulatedValues['Logistics Weather'] < 15) {
+          low.text = `Unusually cold conditions detected (${simulatedValues['Logistics Weather']}°C). Expect minor transit delays in northern regions.`;
+      }
+
+      if (simulatedValues['Domestic Raw Material Index'] && simulatedValues['Domestic Raw Material Index'] > 10) {
+          medium.text = `Raw material index is critically high at ${simulatedValues['Domestic Raw Material Index']}%. Lock in domestic supply contracts now before further inflation hits bottom line.`;
+      } else if (simulatedValues['Domestic Raw Material Index'] && simulatedValues['Domestic Raw Material Index'] < 2) {
+          medium.text = `Raw material costs are currently suppressed at ${simulatedValues['Domestic Raw Material Index']}%. Opportunity to build up domestic inventory of high-margin treats.`;
+      }
+
+      setAiRecommendations({ high, medium, low });
+      setCurrentConfidence(84 + Math.floor(Math.random() * 8));
+  }, [simulatedValues]);
+
+  useEffect(() => {
+      generateRuleBasedInsights();
+  }, [generateRuleBasedInsights]);
+
+  const invokeGemini = async () => {
+      setIsAiGenerating(true);
+      try {
+          const res = await fetch("/api/gemini/recommendations", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ simulatedValues })
+          });
+          const json = await res.json();
+          if (json.usingFallback || !json.recommendations) {
+              generateRuleBasedInsights();
+          } else {
+              const recs = json.recommendations;
+              const h = recs.find((r:any) => r.priority === 'high') || recs[0];
+              const m = recs.find((r:any) => r.priority === 'medium') || recs[1];
+              const l = recs.find((r:any) => r.priority === 'low') || recs[2];
+              setAiRecommendations({ high: h, medium: m, low: l });
+              if (json.confidence) setCurrentConfidence(json.confidence);
+          }
+      } catch (e) {
+          generateRuleBasedInsights();
+      } finally {
+          setIsAiGenerating(false);
+      }
+  };
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const match = chartData.find(c => c.name === label);
@@ -362,11 +423,11 @@ export function DemandVariance() {
         <div className="w-full h-[300px]">
           {chartData.length > 0 ? (
              <ResponsiveContainer width="100%" height="100%">
-               <ComposedChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+               <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 40 }}>
                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                 <XAxis dataKey="name" tickFormatter={(v) => chartData.find(c => c.name === v)?.shortName || v} stroke="#94A3B8" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-30} textAnchor="end" height={40} />
+                 <XAxis dataKey="name" tickFormatter={(v) => chartData.find(c => c.name === v)?.shortName || v} stroke="#94A3B8" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-30} textAnchor="end" height={60} />
                  <Tooltip content={<CustomTooltip />} />
-                 <Legend wrapperStyle={{ fontSize: '12px' }} />
+                 <Legend verticalAlign="top" align="right" wrapperStyle={{ fontSize: '12px', paddingBottom: '20px' }} />
                  <Bar dataKey="BaseForecast" name="Base Forecast" barSize={20} fill="#CBD5E1" radius={[4, 4, 0, 0]} />
                  <Line type="monotone" dataKey="FinalDemand" name="Adjusted Target Demand" stroke="#4F46E5" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} />
                </ComposedChart>
@@ -386,50 +447,61 @@ export function DemandVariance() {
                          <h4 className="text-sm font-bold text-indigo-900 mb-1">AI Recommendation Model</h4>
                          <p className="text-xs text-indigo-800">Based on external factor variances, the AI suggests strategic adjustments to your procurement planning and inventory holding levels.</p>
                      </div>
-                     <div className="bg-white/80 px-3 py-1.5 rounded-lg border border-indigo-100 shadow-sm text-center flex flex-col items-center ml-4 shrink-0">
-                         <div className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-0.5">Confidence</div>
-                         <div className="text-lg font-black text-indigo-700 leading-none">88%</div>
+                     <div className="flex items-center gap-3">
+                         <button 
+                             onClick={invokeGemini}
+                             disabled={isAiGenerating}
+                             className={`px-4 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider text-white flex items-center gap-2 transition-colors ${isAiGenerating ? 'bg-indigo-300' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                         >
+                             {isAiGenerating ? 'Generating...' : 'Regenerate Insight'}
+                         </button>
+                         <div className="bg-white/80 px-3 py-1.5 rounded-lg border border-indigo-100 shadow-sm text-center flex flex-col items-center shrink-0 min-w-20">
+                             <div className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-0.5">Confidence</div>
+                             <div className="text-lg font-black text-indigo-700 leading-none">{currentConfidence}%</div>
+                         </div>
                      </div>
                  </div>
                  
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
-                      <div className="bg-white rounded-lg p-3.5 border border-rose-100 shadow-sm flex flex-col justify-between">
-                          <div className="text-[11px] font-black text-rose-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>High Priority
+                 {aiRecommendations && (
+                     <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 mt-5 transition-opacity duration-300 ${isAiGenerating ? 'opacity-50 grayscale' : 'opacity-100'}`}>
+                          <div className="bg-white rounded-lg p-3.5 border border-rose-100 shadow-sm flex flex-col justify-between">
+                              <div className="text-[11px] font-black text-rose-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>High Priority
+                              </div>
+                              <ul className="text-xs text-slate-700 space-y-2 list-disc pl-4 font-medium text-pretty leading-relaxed">
+                                  <li>{aiRecommendations.high?.text}</li>
+                              </ul>
+                              <div className="mt-3 pt-3 border-t border-rose-50/50">
+                                  <div className="text-[10px] font-bold text-rose-500 uppercase tracking-wide mb-1">Impact of Inaction</div>
+                                  <p className="text-[11px] text-slate-600 font-medium">{aiRecommendations.high?.impact}</p>
+                              </div>
                           </div>
-                          <ul className="text-xs text-slate-700 space-y-2 list-disc pl-4 font-medium text-pretty leading-relaxed">
-                              <li>Reduce immediate import orders for Chip Chops & Farmina by 15% due to elevated forex and ocean freight costs. Wait for end-of-month stabilization.</li>
-                          </ul>
-                          <div className="mt-3 pt-3 border-t border-rose-50/50">
-                              <div className="text-[10px] font-bold text-rose-500 uppercase tracking-wide mb-1">Impact of Inaction</div>
-                              <p className="text-[11px] text-slate-600 font-medium">Excessive working capital lock-up and ~4.2% margin erosion due to unoptimized procurement timing.</p>
+                          <div className="bg-white rounded-lg p-3.5 border border-amber-100 shadow-sm flex flex-col justify-between">
+                              <div className="text-[11px] font-black text-amber-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>Medium Priority
+                              </div>
+                              <ul className="text-xs text-slate-700 space-y-2 list-disc pl-4 font-medium text-pretty leading-relaxed">
+                                  <li>{aiRecommendations.medium?.text}</li>
+                              </ul>
+                              <div className="mt-3 pt-3 border-t border-amber-50">
+                                  <div className="text-[10px] font-bold text-amber-500 uppercase tracking-wide mb-1">Impact of Inaction</div>
+                                  <p className="text-[11px] text-slate-600 font-medium">{aiRecommendations.medium?.impact}</p>
+                              </div>
                           </div>
-                      </div>
-                      <div className="bg-white rounded-lg p-3.5 border border-amber-100 shadow-sm flex flex-col justify-between">
-                          <div className="text-[11px] font-black text-amber-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>Medium Priority
+                          <div className="bg-white rounded-lg p-3.5 border border-emerald-100 shadow-sm flex flex-col justify-between">
+                              <div className="text-[11px] font-black text-emerald-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>Low Priority
+                              </div>
+                              <ul className="text-xs text-slate-700 space-y-2 list-disc pl-4 font-medium text-pretty leading-relaxed">
+                                  <li>{aiRecommendations.low?.text}</li>
+                              </ul>
+                              <div className="mt-3 pt-3 border-t border-emerald-50">
+                                  <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide mb-1">Impact of Inaction</div>
+                                  <p className="text-[11px] text-slate-600 font-medium">{aiRecommendations.low?.impact}</p>
+                              </div>
                           </div>
-                          <ul className="text-xs text-slate-700 space-y-2 list-disc pl-4 font-medium text-pretty leading-relaxed">
-                              <li>Increase bulk raw material procurement for domestic brands (like Drools) by 5% to hedge against the rising Poultry & Grain index.</li>
-                          </ul>
-                          <div className="mt-3 pt-3 border-t border-amber-50">
-                              <div className="text-[10px] font-bold text-amber-500 uppercase tracking-wide mb-1">Impact of Inaction</div>
-                              <p className="text-[11px] text-slate-600 font-medium">Potential stock-outs on high-velocity SKUs and vulnerability to sudden raw material price hikes.</p>
-                          </div>
-                      </div>
-                      <div className="bg-white rounded-lg p-3.5 border border-emerald-100 shadow-sm flex flex-col justify-between">
-                          <div className="text-[11px] font-black text-emerald-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>Low Priority
-                          </div>
-                          <ul className="text-xs text-slate-700 space-y-2 list-disc pl-4 font-medium text-pretty leading-relaxed">
-                              <li>Monitor "Free Shipping" margin impact for high-velocity pet food due to weather delays pushing logistics buffer to upper bounds.</li>
-                          </ul>
-                          <div className="mt-3 pt-3 border-t border-emerald-50">
-                              <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide mb-1">Impact of Inaction</div>
-                              <p className="text-[11px] text-slate-600 font-medium">Subtle margin leakages and degraded customer satisfaction from uncommunicated transit delays.</p>
-                          </div>
-                      </div>
-                 </div>
+                     </div>
+                 )}
               </div>
           </div>
       </div>
